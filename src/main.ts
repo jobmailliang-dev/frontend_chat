@@ -11,8 +11,6 @@ if (import.meta.env.VITE_USE_MOCK === 'true') {
 const app = createApp(App)
 
 // 使用 Element Plus，使用 namespace 隔离样式
-app.use(ElementPlus, {
-  namespace: 'ep-chat'
-})
+app.use(ElementPlus)
 
 app.mount('#app')
