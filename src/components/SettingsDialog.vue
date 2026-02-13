@@ -16,7 +16,7 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue';
-import { SubApp } from 'frontend-next-scaffold'
+import { SubApp } from 'frontend-settings'
 
 const props = defineProps<{
   modelValue: boolean;

@@ -36,6 +36,10 @@ export default defineConfig(({ mode }) => {
         '/api/tools': {
           target: 'http://localhost:3002',
           changeOrigin: true
+        },
+        '/api/conversations': {
+          target: 'http://localhost:3002',
+          changeOrigin: true
         }
       } : {
         '/api': {
@@ -49,7 +53,7 @@ export default defineConfig(({ mode }) => {
       alias: {
         '@': path.resolve(__dirname, './src'),
         '@shared': path.resolve(__dirname, '../packages/shared-types'),
-        '@next': path.resolve(__dirname, '../frontend_next/src')
+        '@settings': path.resolve(__dirname, '../frontend_settings/src')
       }
     }
   }
