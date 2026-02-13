@@ -42,7 +42,7 @@ import { useConversation } from './hooks/useConversation';
 // 控制设置弹框显示
 const showSettings = ref(false);
 
-const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+const baseUrl = import.meta.env.VITE_API_TARGET || 'http://localhost:8000';
 const chatWindowRef = ref<InstanceType<typeof ChatWindow> | null>(null);
 
 const { messages, state: chatState, streamMessage, clearMessages } = useChat(baseUrl);
