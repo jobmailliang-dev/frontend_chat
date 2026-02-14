@@ -1,5 +1,5 @@
 import { ref, reactive, computed } from 'vue';
-import type { Message, ThinkingLog, ChatState } from '../types/chat';
+import type { Message, ChatState } from '../types/chat';
 import { streamRequest } from '../utils/streamRequest';
 
 export function useChat(baseUrl = 'http://localhost:8000') {

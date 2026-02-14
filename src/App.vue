@@ -21,7 +21,6 @@
       @toggle-sidebar="toggleSidebar"
       @send-message="handleSendMessage"
       @clear-messages="clearMessages"
-      @update-error="handleUpdateError"
       @update-title="handleUpdateTitle"
     />
 
@@ -115,10 +114,6 @@ const handleSendMessage = async (message: string) => {
     await createConversationOnFirstMessage(message);
   }
   await streamMessage(message);
-};
-
-const handleUpdateError = (error: string | null) => {
-  // 更新错误状态
 };
 
 const handleUpdateTitle = (title: string) => {

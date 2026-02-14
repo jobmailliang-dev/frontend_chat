@@ -35,7 +35,7 @@ interface Props {
   message?: string;
 }
 
-const props = withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Props>(), {
   title: '确认删除',
   message: '确定要删除此对话吗？此操作不可恢复。',
 });

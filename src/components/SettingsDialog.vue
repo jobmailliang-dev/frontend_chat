@@ -1,14 +1,18 @@
 <template>
   <el-dialog
     v-model="dialogVisible"
-    title="系统设置"
     width="900px"
     :modal="true"
     :close-on-click-modal="true"
     destroy-on-close
     :append-to-body="true"
+    :show-close="false"
+    :style="{ '--el-dialog-padding-primary': '0', '--el-dialog-border-radius': '12px' }"
   >
     <div class="settings-container">
+      <div class="close-btn" @click="dialogVisible = false">
+        <el-icon><Close /></el-icon>
+      </div>
       <SubApp />
     </div>
   </el-dialog>
@@ -16,6 +20,7 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue';
+import { Close } from '@element-plus/icons-vue';
 import { SubApp } from 'frontend-settings'
 
 const props = defineProps<{
@@ -37,34 +42,31 @@ watch(dialogVisible, (val) => {
 });
 </script>
 
-<style scoped>
+<style>
 .settings-container {
   height: 600px;
   width: 100%;
   overflow: hidden;
+  position: relative;
 }
 
-:deep(.el-dialog) {
-  --el-dialog-margin-top: 5vh;
-  max-height: 90vh;
+.close-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 999;
+  width: 24px;
+  height: 24px;
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #909399;
+  transition: color 0.2s;
 }
 
-:deep(.el-dialog__header) {
-  margin-right: 0;
-  padding: 16px 20px;
-  border-bottom: 1px solid #eee;
-  flex-shrink: 0;
+.close-btn:hover {
+  color: #409eff;
 }
 
-:deep(.el-dialog__body) {
-  padding: 0;
-  flex: 1;
-  overflow: hidden;
-}
-
-:deep(.el-dialog__footer) {
-  display: none;
-}
 </style>

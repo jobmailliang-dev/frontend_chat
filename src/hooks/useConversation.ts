@@ -1,5 +1,5 @@
 import { ref, computed } from 'vue';
-import type { Conversation, ConversationState } from '../types/conversation';
+import type { Conversation } from '../types/conversation';
 import * as conversationApi from '../api/conversation';
 
 export function useConversation() {
