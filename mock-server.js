@@ -72,7 +72,7 @@ const routes = {
       res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' })
       const list = Array.from(conversations.values())
       list.sort((a, b) => b.updateTime - a.updateTime)
-      res.end(JSON.stringify(list))
+      res.end(JSON.stringify({ success: true, message: null, data: list }))
       return
     }
 
@@ -96,7 +96,7 @@ const routes = {
 
       console.log(`[Mock] 创建对话: ${id} - ${title}`)
       res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' })
-      res.end(JSON.stringify(conversation))
+      res.end(JSON.stringify({ success: true, message: null, data: conversation }))
       return
     }
 
@@ -105,7 +105,7 @@ const routes = {
       const id = query.id
       if (!id) {
         res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' })
-        res.end(JSON.stringify({ error: '缺少 id 参数' }))
+        res.end(JSON.stringify({ success: false, message: '缺少 id 参数', data: null }))
         return
       }
 
@@ -116,7 +116,7 @@ const routes = {
       }
 
       res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' })
-      res.end(JSON.stringify({ success: true }))
+      res.end(JSON.stringify({ success: true, message: null, data: null }))
       return
     }
 
@@ -125,14 +125,14 @@ const routes = {
       const id = query.id
       if (!id) {
         res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' })
-        res.end(JSON.stringify({ error: '缺少 id 参数' }))
+        res.end(JSON.stringify({ success: false, message: '缺少 id 参数', data: null }))
         return
       }
 
       const conv = conversations.get(id)
       if (!conv) {
         res.writeHead(404, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' })
-        res.end(JSON.stringify({ error: '对话不存在' }))
+        res.end(JSON.stringify({ success: false, message: '对话不存在', data: null }))
         return
       }
 
@@ -143,12 +143,12 @@ const routes = {
 
       console.log(`[Mock] 更新对话: ${id}`)
       res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' })
-      res.end(JSON.stringify(conv))
+      res.end(JSON.stringify({ success: true, message: null, data: conv }))
       return
     }
 
     res.writeHead(405, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' })
-    res.end(JSON.stringify({ error: 'Method not allowed' }))
+    res.end(JSON.stringify({ success: false, message: 'Method not allowed', data: null }))
   },
 
   '/api/conversations/messages': (req, res) => {
@@ -159,14 +159,18 @@ const routes = {
     res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' })
 
     if (!conversationId) {
-      res.end(JSON.stringify({ conversationId: '', messages: [] }))
+      res.end(JSON.stringify({ success: true, message: null, data: { conversationId: '', messages: [] } }))
       return
     }
 
     const conversationMessages = messages.get(conversationId) || []
     res.end(JSON.stringify({
-      conversationId,
-      messages: conversationMessages
+      success: true,
+      message: null,
+      data: {
+        conversationId,
+        messages: conversationMessages
+      }
     }))
   }
 }

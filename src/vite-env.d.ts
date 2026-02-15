@@ -21,5 +21,7 @@ declare module 'vue-virtual-scroller' {
   const VueVirtualScroller: Component & {
     install(app: App): void;
   };
+  export const DynamicScroller: Component;
+  export const DynamicScrollerItem: Component;
   export default VueVirtualScroller;
 }

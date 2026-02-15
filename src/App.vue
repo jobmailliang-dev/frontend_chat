@@ -46,7 +46,7 @@ import { useConversation } from './hooks/useConversation';
 // 控制设置弹框显示（保留当前分支功能）
 const showSettings = ref(false);
 
-const baseUrl = import.meta.env.VITE_API_TARGET || 'http://localhost:8000';
+const baseUrl = import.meta.env.VITE_API_TARGET || '';
 const chatWindowRef = ref<InstanceType<typeof ChatWindow> | null>(null);
 
 // 侧栏折叠状态

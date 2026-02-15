@@ -91,7 +91,7 @@ export function useChat(baseUrl = 'http://localhost:8000') {
 
     // 使用 streamRequest 工具类发起请求
     await streamRequest(
-      '/api/chat/stream',
+      '/chat/stream',
       { message },
       (event, data) => {
         handleSSERecord(event, data, assistantMsgId);
