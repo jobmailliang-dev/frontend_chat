@@ -11,35 +11,39 @@
       <div class="sidebar-header">
         <!-- Logo -->
         <div class="logo-wrapper" @click="handleLogoClick">
-          <svg width="28" height="28" viewBox="0 0 200 200" fill="none">
+          <!-- 折叠状态显示 SVG -->
+          <svg v-if="isCollapsed" width="28" height="28" viewBox="0 0 200 200" fill="none">
+            <!-- 品牌色渐变定义：从微茗智能 Logo 提取 -->
             <defs>
-              <linearGradient id="logo-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" style="stop-color:#4facfe;stop-opacity:1" />
-                <stop offset="100%" style="stop-color:#00f2fe;stop-opacity:1" />
+              <linearGradient id="brand-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" style="stop-color:#359895;stop-opacity:1" /> <!-- 青绿色 -->
+                <stop offset="100%" style="stop-color:#f4bb1c;stop-opacity:1" /> <!-- 金黄色 -->
               </linearGradient>
             </defs>
+
+            <!-- M A I 字母组合设计 -->
             <g>
-              <path d="M 40 150 L 40 50 L 100 110 L 160 50 L 160 150"
-                    stroke="#333" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" />
-              <path d="M 70 105 L 130 105"
-                    stroke="#333" stroke-width="12" stroke-linecap="round" />
-              <path d="M 100 110 L 100 155"
-                    stroke="url(#logo-grad)" stroke-width="14" stroke-linecap="round" />
+              <!-- 字母 M 的主体轮廓 -->
+              <path d="M 40 150 L 40 50 L 100 110 L 160 50 L 160 150" stroke="url(#brand-grad)" stroke-width="16"
+                stroke-linecap="round" stroke-linejoin="round" />
+
+              <!-- 字母 A 的横杠 (与 M 结合) -->
+              <path d="M 70 105 L 130 105" stroke="url(#brand-grad)" stroke-width="14" stroke-linecap="round" />
+
+              <!-- 字母 I (作为 A 的中轴和 M 的交汇点) -->
+              <path d="M 100 110 L 100 155" stroke="url(#brand-grad)" stroke-width="16" stroke-linecap="round" />
             </g>
           </svg>
-          <span v-if="showLogoText" class="logo-text">AI Chat</span>
+          <!-- 展开状态显示 logo.png -->
+          <img v-else src="../../../logo.png" alt="AI Chat" class="logo-img" />
         </div>
 
         <!-- 折叠/显示按钮 -->
-        <button
-          v-if="showCollapseBtn"
-          class="collapse-btn"
-          @click="handleCollapseClick"
-          :title="collapseBtnTitle"
-        >
+        <button v-if="showCollapseBtn" class="collapse-btn" @click="handleCollapseClick" :title="collapseBtnTitle">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-            <path d="M7.63158 3.33325V16.6666M5 16.6666H15C16.3807 16.6666 17.5 15.5473 17.5 14.1666V5.83325C17.5 4.45254 16.3807 3.33325 15 3.33325H5C3.61929 3.33325 2.5 4.45254 2.5 5.83325V14.1666C2.5 15.5473 3.61929 16.6666 5 16.6666Z"
-                  stroke="currentColor" stroke-width="1.5"></path>
+            <path
+              d="M7.63158 3.33325V16.6666M5 16.6666H15C16.3807 16.6666 17.5 15.5473 17.5 14.1666V5.83325C17.5 4.45254 16.3807 3.33325 15 3.33325H5C3.61929 3.33325 2.5 4.45254 2.5 5.83325V14.1666C2.5 15.5473 3.61929 16.6666 5 16.6666Z"
+              stroke="currentColor" stroke-width="1.5"></path>
           </svg>
         </button>
       </div>
@@ -47,11 +51,7 @@
       <!-- Body 区 -->
       <div class="sidebar-body">
         <!-- 新建对话 -->
-        <button
-          class="new-chat-btn"
-          @click="handleNewChat"
-          :disabled="isLoading"
-        >
+        <button class="new-chat-btn" @click="handleNewChat" :disabled="isLoading">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <line x1="12" y1="5" x2="12" y2="19"></line>
             <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -65,10 +65,8 @@
           <div v-if="!isCollapsed" class="section-title">对话历史</div>
           <div class="conversation-list">
             <template v-for="conv in conversations" :key="conv.id">
-              <div
-                :class="['conversation-item', { active: conv.id === currentConversationId }]"
-                @click="selectConversation(conv.id)"
-              >
+              <div :class="['conversation-item', { active: conv.id === currentConversationId }]"
+                @click="selectConversation(conv.id)">
                 <div class="conv-icon">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
@@ -77,30 +75,27 @@
                 <span v-if="!isCollapsed" class="conv-title">{{ conv.title }}</span>
 
                 <!-- 悬浮显示操作按钮 -->
-                <button
-                  v-if="!isCollapsed"
-                  class="action-btn"
-                  @click.stop="toggleMenu(conv.id)"
-                >
+                <button v-if="!isCollapsed" class="action-btn" @click.stop="toggleMenu(conv.id)">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                    <circle cx="12" cy="6" r="1.5"/>
-                    <circle cx="12" cy="12" r="1.5"/>
-                    <circle cx="12" cy="18" r="1.5"/>
+                    <circle cx="12" cy="6" r="1.5" />
+                    <circle cx="12" cy="12" r="1.5" />
+                    <circle cx="12" cy="18" r="1.5" />
                   </svg>
                 </button>
 
                 <!-- 操作菜单 -->
                 <Transition name="menu">
-                  <div v-if="!isCollapsed && openMenuId === conv.id" class="menu-dropdown" v-click-outside="() => openMenuId = null">
+                  <div v-if="!isCollapsed && openMenuId === conv.id" class="menu-dropdown"
+                    v-click-outside="() => openMenuId = null">
                     <div class="menu-item" @click="showRenameDialog(conv)">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                        <path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
                       </svg>
                       重命名
                     </div>
                     <div class="menu-item delete" @click="showDeleteDialog(conv)">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                        <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
                       </svg>
                       删除
                     </div>
@@ -131,21 +126,12 @@
       </div>
 
       <!-- 删除确认对话框 -->
-      <ConfirmDialog
-        v-model:visible="deleteDialogVisible"
-        :title="`删除「${deletingConversation?.title}」`"
-        message="确定要删除此对话吗？此操作不可恢复。"
-        @confirm="confirmDelete"
-      />
+      <ConfirmDialog v-model:visible="deleteDialogVisible" :title="`删除「${deletingConversation?.title}」`"
+        message="确定要删除此对话吗？此操作不可恢复。" @confirm="confirmDelete" />
 
       <!-- 重命名对话框 -->
-      <RenameDialog
-        v-model:visible="renameDialogVisible"
-        title="重命名对话"
-        :defaultValue="renamingConversation?.title"
-        placeholder="输入新名称"
-        @confirm="confirmRename"
-      />
+      <RenameDialog v-model:visible="renameDialogVisible" title="重命名对话" :defaultValue="renamingConversation?.title"
+        placeholder="输入新名称" @confirm="confirmRename" />
     </div>
   </aside>
 </template>
@@ -195,7 +181,6 @@ const sidebarClasses = computed(() => ({
 }));
 
 const showBackdrop = computed(() => isMobile.value && !isCollapsed.value);
-const showLogoText = computed(() => !isCollapsed.value);
 const showCollapseBtn = computed(() => !isCollapsed.value);
 const collapseBtnTitle = computed(() => {
   if (isMobile.value) {
@@ -401,6 +386,12 @@ const handleNewChat = () => {
 .logo-wrapper:only-child {
   margin: 0;
   padding: 0;
+}
+
+.logo-img {
+  width: 70px;
+  height: 32px;
+  object-fit: contain;
 }
 
 .logo-text {
@@ -667,7 +658,9 @@ const handleNewChat = () => {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* 空状态 */
