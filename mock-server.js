@@ -26,24 +26,55 @@ const routes = {
   '/api/chat/stream': (req, res) => {
     const query = url.parse(req.url, true).query
     const message = query.message || ''
-    console.log(`[Mock] 收到消息: ${message}`)
+    const conversationId = query.conversationId || ''
+    console.log(`[Mock] 收到消息: ${message}, conversationId: ${conversationId}`)
 
     res.writeHead(200, {
       'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache',
-      'Connection': 'keep-alive', // 虽然是 keep-alive，但 res.end() 会结束当前响应块
+      'Connection': 'keep-alive',
       'Access-Control-Allow-Origin': '*'
     })
 
+    // 保存用户消息
+    if (conversationId) {
+      const userMsg = {
+        id: `msg_${Date.now()}_user`,
+        role: 'user',
+        content: message,
+        timestamp: Date.now()
+      }
+      const convMessages = messages.get(conversationId) || []
+      convMessages.push(userMsg)
+      messages.set(conversationId, convMessages)
+    }
+
     // 模拟流式响应
-    setTimeout(() => sendSSE(res, 'content', `你好！我收到了: "${message}"`), 100)
-    setTimeout(() => sendSSE(res, 'content', '这是一个模拟的 SSE 流式响应'), 300)
-    setTimeout(() => sendSSE(res, 'content', 'MSW 拦截正常工作'), 500)
+    setTimeout(() => sendSSE(res, 'content', JSON.stringify({ content: `你好！我收到了: "${message}"` })), 100)
+    setTimeout(() => sendSSE(res, 'content', JSON.stringify({ content: '这是一个模拟的 SSE 流式响应' })), 300)
+    setTimeout(() => sendSSE(res, 'content', JSON.stringify({ content: 'MSW 拦截正常工作' })), 500)
+
+    // 保存助手消息
+    const assistantResponse = `你好！我收到了: "${message}"这是模拟的 SSE 流式响应MSW 拦截正常工作`
+    if (conversationId) {
+      setTimeout(() => {
+        const assistantMsg = {
+          id: `msg_${Date.now()}_assistant`,
+          role: 'assistant',
+          content: assistantResponse,
+          timestamp: Date.now()
+        }
+        const convMessages = messages.get(conversationId) || []
+        convMessages.push(assistantMsg)
+        messages.set(conversationId, convMessages)
+        console.log(`[Mock] 保存助手消息到对话 ${conversationId}`)
+      }, 700)
+    }
 
     // 关键修复点：
     setTimeout(() => {
-      sendSSE(res, 'done', '') // 发送业务上的结束标识（可选）
-      res.end()                // 真正关闭 HTTP 连接，触发前端 reader.read() 的 done: true
+      sendSSE(res, 'done', '')
+      res.end()
       console.log(`[Mock] 响应已结束`)
     }, 700)
   },
@@ -78,25 +109,36 @@ const routes = {
 
     // POST: 创建对话
     if (req.method === 'POST') {
-      const title = query.title || '新对话'
-      const now = Date.now()
-      const id = generateId()
+      let body = ''
+      req.on('data', chunk => { body += chunk.toString() })
+      req.on('end', () => {
+        let requestBody = {}
+        try {
+          requestBody = body ? JSON.parse(body) : {}
+        } catch (e) {
+          requestBody = {}
+        }
 
-      const conversation = {
-        id,
-        title,
-        preview: '',
-        createTime: now,
-        updateTime: now,
-        messageCount: 0
-      }
+        const title = requestBody.title || query.title || '新对话'
+        const now = Date.now()
+        const id = generateId()
 
-      conversations.set(id, conversation)
-      messages.set(id, [])
+        const conversation = {
+          id,
+          title,
+          preview: '',
+          createTime: now,
+          updateTime: now,
+          messageCount: 0
+        }
 
-      console.log(`[Mock] 创建对话: ${id} - ${title}`)
-      res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' })
-      res.end(JSON.stringify({ success: true, message: null, data: conversation }))
+        conversations.set(id, conversation)
+        messages.set(id, [])
+
+        console.log(`[Mock] 创建对话: ${id} - ${title}`)
+        res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' })
+        res.end(JSON.stringify({ success: true, message: null, data: conversation }))
+      })
       return
     }
 
@@ -122,28 +164,40 @@ const routes = {
 
     // PATCH: 更新对话
     if (req.method === 'PATCH') {
-      const id = query.id
-      if (!id) {
-        res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' })
-        res.end(JSON.stringify({ success: false, message: '缺少 id 参数', data: null }))
-        return
-      }
+      let body = ''
+      req.on('data', chunk => { body += chunk.toString() })
+      req.on('end', () => {
+        let requestBody = {}
+        try {
+          requestBody = body ? JSON.parse(body) : {}
+        } catch (e) {
+          requestBody = {}
+        }
 
-      const conv = conversations.get(id)
-      if (!conv) {
-        res.writeHead(404, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' })
-        res.end(JSON.stringify({ success: false, message: '对话不存在', data: null }))
-        return
-      }
+        // 优先从请求体获取参数，其次从 URL 查询参数
+        const id = requestBody.id || query.id
+        if (!id) {
+          res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' })
+          res.end(JSON.stringify({ success: false, message: '缺少 id 参数', data: null }))
+          return
+        }
 
-      if (query.title) conv.title = query.title
-      if (query.preview !== undefined) conv.preview = query.preview
-      if (query.messageCount !== undefined) conv.messageCount = parseInt(query.messageCount)
-      conv.updateTime = Date.now()
+        const conv = conversations.get(id)
+        if (!conv) {
+          res.writeHead(404, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' })
+          res.end(JSON.stringify({ success: false, message: '对话不存在', data: null }))
+          return
+        }
 
-      console.log(`[Mock] 更新对话: ${id}`)
-      res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' })
-      res.end(JSON.stringify({ success: true, message: null, data: conv }))
+        if (requestBody.title || query.title) conv.title = requestBody.title || query.title
+        if (requestBody.preview !== undefined || query.preview !== undefined) conv.preview = requestBody.preview || query.preview
+        if (requestBody.messageCount !== undefined || query.messageCount !== undefined) conv.messageCount = parseInt(requestBody.messageCount || query.messageCount)
+        conv.updateTime = Date.now()
+
+        console.log(`[Mock] 更新对话: ${id}`)
+        res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' })
+        res.end(JSON.stringify({ success: true, message: null, data: conv }))
+      })
       return
     }
 

@@ -1,6 +1,7 @@
 import { ref, reactive, computed } from 'vue';
 import type { Message, ChatState } from '../types/chat';
 import { streamRequest } from '../utils/streamRequest';
+import { getConversationMessages } from '../api/conversation';
 
 export function useChat(baseUrl = 'http://localhost:8000') {
   const messages = ref<Message[]>([]);
@@ -48,7 +49,12 @@ export function useChat(baseUrl = 'http://localhost:8000') {
       case 'content':
         // content 事件：累积内容，关闭 thinking 状态
         lastMsg.isThinking = false;
-        lastMsg.content += dataStr;
+        // 支持两种格式：1. 纯文本 2. { content: "xxx" } 对象格式
+        let contentText = dataStr;
+        if (typeof data === 'object' && data !== null && 'content' in data) {
+          contentText = (data as { content: string }).content;
+        }
+        lastMsg.content += contentText;
         break;
 
       case 'thinking':
@@ -77,7 +83,7 @@ export function useChat(baseUrl = 'http://localhost:8000') {
     }
   };
 
-  const streamMessage = async (message: string): Promise<void> => {
+  const streamMessage = async (message: string, conversationId?: string): Promise<void> => {
     if (state.isLoading || state.isStreaming) return;
 
     // 添加用户消息
@@ -89,10 +95,16 @@ export function useChat(baseUrl = 'http://localhost:8000') {
     // 创建助手消息占位
     const assistantMsgId = addMessage('assistant');
 
+    // 构建请求参数，包含 conversationId
+    const requestData: { message: string; conversationId?: string } = { message };
+    if (conversationId) {
+      requestData.conversationId = conversationId;
+    }
+
     // 使用 streamRequest 工具类发起请求
     await streamRequest(
       '/chat/stream',
-      { message },
+      requestData,
       (event, data) => {
         handleSSERecord(event, data, assistantMsgId);
       },
@@ -120,6 +132,25 @@ export function useChat(baseUrl = 'http://localhost:8000') {
     messages.value = [];
   };
 
+  // 加载历史消息
+  const loadHistoryMessages = async (conversationId: string) => {
+    try {
+      const response = await getConversationMessages(conversationId);
+      // 将 API 返回的消息转换为 Message 类型
+      messages.value = response.messages.map((msg) => ({
+        id: msg.id,
+        role: msg.role as 'user' | 'assistant',
+        content: msg.content,
+        timestamp: msg.timestamp,
+        isThinking: false,
+        thinkingLog: [],
+      }));
+    } catch (err) {
+      console.error('加载历史消息失败:', err);
+      state.error = err instanceof Error ? err.message : '加载历史消息失败';
+    }
+  };
+
   return {
     messages: computed(() => messages.value),
     state: computed(() => ({
@@ -129,5 +160,6 @@ export function useChat(baseUrl = 'http://localhost:8000') {
     })),
     streamMessage,
     clearMessages,
+    loadHistoryMessages,
   };
 }

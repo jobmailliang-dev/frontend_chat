@@ -52,7 +52,7 @@ const chatWindowRef = ref<InstanceType<typeof ChatWindow> | null>(null);
 // 侧栏折叠状态
 const sidebarCollapsed = ref(false);
 
-const { messages, state: chatState, streamMessage, clearMessages } = useChat(baseUrl);
+const { messages, state: chatState, streamMessage, clearMessages, loadHistoryMessages } = useChat(baseUrl);
 const {
   conversations,
   currentConversationId,
@@ -93,10 +93,10 @@ const handleNewChat = () => {
   chatWindowRef.value?.focusInput();
 };
 
-const handleSelect = (id: string) => {
+const handleSelect = async (id: string) => {
   selectConversation(id);
-  // TODO: 加载对应对话的历史消息
-  clearMessages();
+  // 加载对应对话的历史消息
+  await loadHistoryMessages(id);
 };
 
 const handleDelete = (id: string) => {
@@ -113,7 +113,7 @@ const handleSendMessage = async (message: string) => {
   if (!currentConversationId.value) {
     await createConversationOnFirstMessage(message);
   }
-  await streamMessage(message);
+  await streamMessage(message, currentConversationId.value || undefined);
 };
 
 const handleUpdateTitle = (title: string) => {

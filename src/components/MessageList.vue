@@ -6,11 +6,11 @@
       :class="['message-item', msg.role]"
     >
       <!-- AI 头像 -->
-      <template v-if="msg.role === 'assistant'">
+      <!-- <template v-if="msg.role === 'assistant'">
         <div class="avatar ai-avatar">
           <span class="avatar-icon">AI</span>
         </div>
-      </template>
+      </template> -->
 
       <!-- 消息内容 -->
       <template v-if="msg.role === 'user'">
@@ -84,11 +84,11 @@
       </template>
 
       <!-- 用户头像 -->
-      <template v-if="msg.role === 'user'">
+      <!-- <template v-if="msg.role === 'user'">
         <div class="avatar user-avatar">
           <span class="avatar-icon">U</span>
         </div>
-      </template>
+      </template> -->
     </div>
   </div>
 </template>
