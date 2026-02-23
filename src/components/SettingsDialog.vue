@@ -7,7 +7,7 @@
     destroy-on-close
     :append-to-body="true"
     :show-close="false"
-    :style="{ '--el-dialog-padding-primary': '0', '--el-dialog-border-radius': '12px' }"
+    :style="{ '--el-dialog-padding-primary': '0', '--el-dialog-border-radius': '20px' }"
   >
     <div class="settings-container">
       <div class="close-btn" @click="dialogVisible = false">

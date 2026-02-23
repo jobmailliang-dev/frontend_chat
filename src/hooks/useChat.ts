@@ -113,6 +113,8 @@ export function useChat(baseUrl = 'http://localhost:8000') {
         baseUrl,
         onError: (error) => {
           state.error = error.message;
+          state.isLoading = false;
+          state.isStreaming = false;
           const lastMsg = messages.value.find(m => m.id === assistantMsgId);
           if (lastMsg) {
             lastMsg.content += `\n错误: ${error.message}`;

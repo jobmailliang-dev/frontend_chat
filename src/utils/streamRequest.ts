@@ -129,6 +129,7 @@ export async function streamRequest<T = any>(
   } catch (error) {
     console.error('Stream request failed:', error);
     onError?.(error as Error);
+    onComplete?.(); // 确保调用 onComplete 重置状态
     throw error;
   }
 }
