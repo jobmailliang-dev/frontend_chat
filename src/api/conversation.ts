@@ -4,6 +4,7 @@ const API_BASE_URL = import.meta.env.VITE_API_TARGET || '';
 
 export interface ConversationListItem {
   id: string;
+  userId: string;
   title: string;
   preview: string;
   createTime: number;
@@ -28,14 +29,19 @@ const axiosInstance = axios.create({
 });
 
 // 对话列表 API
-export async function getConversations(): Promise<ConversationListItem[]> {
-  const response = await axiosInstance.get<{ data: ConversationListItem[] }>('/conversations');
+export async function getConversations(userId: string): Promise<ConversationListItem[]> {
+  const response = await axiosInstance.get<{ data: ConversationListItem[] }>('/conversations', {
+    params: { user_id: userId }
+  });
   return response.data.data;
 }
 
 // 创建对话
-export async function createConversation(title: string): Promise<ConversationListItem> {
-  const response = await axiosInstance.post<{ data: ConversationListItem }>('/conversations', { title });
+export async function createConversation(title: string, userId: string): Promise<ConversationListItem> {
+  const response = await axiosInstance.post<{ data: ConversationListItem }>('/conversations', {
+    title,
+    user_id: userId
+  });
   return response.data.data;
 }
 

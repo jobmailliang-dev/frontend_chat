@@ -1,6 +1,7 @@
 // 对话相关类型定义
 export interface Conversation {
   id: string;
+  userId: string;
   title: string;
   preview: string;
   createTime: number;

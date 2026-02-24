@@ -1,6 +1,7 @@
 import { ref, computed } from 'vue';
 import type { Conversation } from '../types/conversation';
 import * as conversationApi from '../api/conversation';
+import { useAuthStore } from '../stores/authStore';
 
 export function useConversation() {
   const conversations = ref<Conversation[]>([]);
@@ -8,14 +9,23 @@ export function useConversation() {
   const isLoading = ref(false);
   const error = ref<string | null>(null);
 
+  const authStore = useAuthStore();
+
+  // 获取当前用户 ID
+  const getUserId = (): string => {
+    return authStore.getUserId || '';
+  };
+
   // 加载对话列表
   const loadConversations = async () => {
     isLoading.value = true;
     error.value = null;
     try {
-      const list = await conversationApi.getConversations();
+      const userId = getUserId();
+      const list = await conversationApi.getConversations(userId);
       conversations.value = list.map((item) => ({
         id: item.id,
+        userId: item.userId,
         title: item.title,
         preview: item.preview,
         createTime: item.createTime,
@@ -38,9 +48,11 @@ export function useConversation() {
         ? (firstMessage.length > 20 ? firstMessage.substring(0, 20) + '...' : firstMessage)
         : '新对话';
 
-      const result = await conversationApi.createConversation(title);
+      const userId = getUserId();
+      const result = await conversationApi.createConversation(title, userId);
       const conversation: Conversation = {
         id: result.id,
+        userId: result.userId,
         title: result.title,
         preview: firstMessage ? (firstMessage.length > 30 ? firstMessage.substring(0, 30) + '...' : firstMessage) : '',
         createTime: result.createTime,
