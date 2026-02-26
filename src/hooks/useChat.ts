@@ -1,5 +1,5 @@
 import { ref, reactive, computed } from 'vue';
-import type { Message, ChatState } from '../types/chat';
+import type { Message, ChatState, AskUserField, ThinkingLog } from '../types/chat';
 import { streamRequest } from '../utils/streamRequest';
 import { getConversationMessages } from '../api/conversation';
 
@@ -80,6 +80,30 @@ export function useChat(baseUrl = 'http://localhost:8000') {
         lastMsg.isThinking = false;
         lastMsg.content += `\n错误: ${dataStr}`;
         break;
+
+      case 'ask_user':
+        // ask_user 事件：创建新消息展示询问组件
+        lastMsg.isThinking = false;
+        try {
+          const parsed = JSON.parse(dataStr);
+          const fields = parsed.questions as AskUserField[];
+          const question = parsed.question as string;
+          const status = parsed.status as 'PENDING' | 'FINISH';
+          const messageId = parsed.message_id as string;
+          // 创建新消息用于展示询问表单
+          const askMsgId = addMessage('assistant');
+          const askMsg = messages.value.find(m => m.id === askMsgId);
+          if (askMsg && fields) {
+            askMsg.askUserFields = fields;
+            askMsg.askUserTitle = question || '';
+            askMsg.askUserStatus = status || 'PENDING';
+            askMsg.askUserMessageId = messageId || '';
+            askMsg.content = '';
+          }
+        } catch (e) {
+          console.error('解析 ask_user 数据失败:', e);
+        }
+        break;
     }
   };
 
@@ -139,14 +163,40 @@ export function useChat(baseUrl = 'http://localhost:8000') {
     try {
       const response = await getConversationMessages(conversationId);
       // 将 API 返回的消息转换为 Message 类型
-      messages.value = response.messages.map((msg) => ({
-        id: msg.id,
-        role: msg.role as 'user' | 'assistant',
-        content: msg.content,
-        timestamp: msg.timestamp,
-        isThinking: false,
-        thinkingLog: [],
-      }));
+      messages.value = response.messages.map((msg) => {
+        const message = {
+          id: msg.id,
+          role: msg.role as 'user' | 'assistant' | 'ask_user',
+          content: msg.content,
+          timestamp: msg.timestamp,
+          isThinking: false,
+          thinkingLog: [] as ThinkingLog[],
+        };
+
+        // 如果是 ask_user 角色，解析 content 中的 JSON
+        if (msg.role === 'ask_user') {
+          try {
+            const parsed = JSON.parse(msg.content);
+            message.askUserFields = parsed.questions || [];
+            message.askUserTitle = parsed.question || '';
+            message.askUserStatus = parsed.status || 'PENDING';
+            message.askUserMessageId = parsed.message_id || msg.id;
+            message.content = ''; // 清空 content，表单会单独显示
+
+            // 如果有 form_data，将数据映射到 questions 的 answer 字段
+            if (parsed.form_data) {
+              message.askUserFields = message.askUserFields.map((field: any) => ({
+                ...field,
+                answer: parsed.form_data[field.id] || ''
+              }));
+            }
+          } catch (e) {
+            console.error('解析 ask_user 内容失败:', e);
+          }
+        }
+
+        return message;
+      });
     } catch (err) {
       console.error('加载历史消息失败:', err);
       state.error = err instanceof Error ? err.message : '加载历史消息失败';

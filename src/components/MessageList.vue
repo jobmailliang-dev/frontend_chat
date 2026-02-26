@@ -18,10 +18,24 @@
           {{ msg.content }}
         </div>
       </template>
+      <template v-else-if="msg.role === 'ask_user'">
+        <!-- ask_user 角色显示为表单 -->
+        <div class="ai-message">
+          <AskUserForm
+            v-if="msg.askUserFields && msg.askUserFields.length > 0"
+            :fields="msg.askUserFields"
+            :title="msg.askUserTitle"
+            :status="msg.askUserStatus"
+            :conversationId="conversationId"
+            :messageId="msg.askUserMessageId"
+            @submit="(data) => handleAskUserSubmit(msg.id, data)"
+          />
+        </div>
+      </template>
       <template v-else>
         <div class="ai-message">
           <!-- Content 区域：打字机效果 -->
-          <div class="content-area">
+          <div class="content-area" v-if="msg.content != ''">
             <template v-if="msg.isThinking && !msg.content">
               <div class="typing-indicator">
                 <span class="dot"></span>
@@ -80,6 +94,17 @@
               </div>
             </details>
           </div>
+
+          <!-- 询问用户表单 -->
+          <AskUserForm
+            v-if="msg.askUserFields && msg.askUserFields.length > 0"
+            :fields="msg.askUserFields"
+            :title="msg.askUserTitle"
+            :status="msg.askUserStatus"
+            :conversationId="conversationId"
+            :messageId="msg.askUserMessageId"
+            @submit="(data) => handleAskUserSubmit(msg.id, data)"
+          />
         </div>
       </template>
 
@@ -96,12 +121,25 @@
 <script setup lang="ts">
 import { ref, watch, nextTick } from 'vue';
 import type { Message } from '../types/chat';
+import AskUserForm from './AskUserForm.vue';
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   messages: Message[];
+  conversationId?: string;
+}>(), {
+  conversationId: '',
+});
+
+const emit = defineEmits<{
+  (e: 'ask-user-submit', messageId: string, data: Record<string, string>): void;
 }>();
 
 const containerRef = ref<HTMLElement>();
+
+// 处理用户表单提交
+const handleAskUserSubmit = (messageId: string, data: Record<string, string>) => {
+  emit('ask-user-submit', messageId, data);
+};
 
 // 自动滚动到底部
 watch(

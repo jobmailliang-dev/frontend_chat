@@ -38,7 +38,7 @@
     </div>
 
     <!-- 消息列表 -->
-    <MessageList v-else :messages="messages" />
+    <MessageList v-else :messages="messages" :conversationId="conversationId" @ask-user-submit="handleAskUserSubmit" />
 
     <!-- 输入区域 -->
     <div class="input-area">
@@ -87,6 +87,7 @@ interface Props {
   };
   conversationTitle?: string;
   sidebarCollapsed?: boolean;
+  conversationId?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -99,6 +100,7 @@ const props = withDefaults(defineProps<Props>(), {
   }),
   conversationTitle: '新对话',
   sidebarCollapsed: false,
+  conversationId: '',
 });
 
 // 响应式断点
@@ -191,7 +193,13 @@ const emit = defineEmits<{
   (e: 'update-error', error: string | null): void;
   (e: 'update-title', title: string): void;
   (e: 'toggle-sidebar'): void;
+  (e: 'ask-user-submit', messageId: string, data: Record<string, string>): void;
 }>();
+
+// 转发询问用户表单提交事件
+const handleAskUserSubmit = (messageId: string, data: Record<string, string>) => {
+  emit('ask-user-submit', messageId, data);
+};
 
 // 自动调整高度
 watch(inputMessage, () => {

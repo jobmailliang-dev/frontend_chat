@@ -71,3 +71,13 @@ export async function getConversationMessages(conversationId: string): Promise<C
     messages: filteredMessages
   };
 }
+
+// 更新对话元数据
+export async function updateConversationMetadata(conversationId: string, formData: Record<string, string>, messageId?: string): Promise<ConversationListItem> {
+  const response = await axiosInstance.post<{ data: ConversationListItem }>('/conversations/update_metadata', {
+    conversation_id: conversationId,
+    form_data: formData,
+    message_id: messageId || null
+  });
+  return response.data.data;
+}

@@ -5,7 +5,9 @@
       "Bash(pnpm add:*)",
       "Bash(git add -A)",
       "Bash(pnpm build)",
-      "WebFetch(domain:element-plus.org)"
+      "WebFetch(domain:element-plus.org)",
+      "Bash(npx vue-tsc:*)",
+      "Bash(python -m py_compile:*)"
     ]
   }
 }

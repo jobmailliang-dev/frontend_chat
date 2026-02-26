@@ -18,10 +18,12 @@
       :chatState="chatState"
       :conversationTitle="conversationTitle"
       :sidebarCollapsed="sidebarCollapsed"
+      :conversationId="currentConversationId"
       @toggle-sidebar="toggleSidebar"
       @send-message="handleSendMessage"
       @clear-messages="clearMessages"
       @update-title="handleUpdateTitle"
+      @ask-user-submit="handleAskUserSubmit"
     />
 
     <!-- 设置按钮（保留当前分支功能） -->
@@ -122,6 +124,14 @@ const handleUpdateTitle = (title: string) => {
     const displayTitle = title.length > 20 ? title.substring(0, 20) + '...' : title;
     updateConversation(currentConversationId.value, { title: displayTitle });
   }
+};
+
+// 处理用户填写表单后的提交
+const handleAskUserSubmit = async (messageId: string, data: Record<string, string>) => {
+  // 将表单数据格式化为可读文本
+  const fieldParts = Object.entries(data).map(([key, value]) => `${key}: ${value}`);
+  const message = `提交表单: ${fieldParts.join(', ')}`;
+  await handleSendMessage(message);
 };
 </script>
 

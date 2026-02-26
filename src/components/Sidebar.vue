@@ -430,8 +430,13 @@ const handleNewChat = () => {
 }
 
 /* 自定义滚动条 */
+.sidebar-body {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.15) transparent;
+}
+
 .sidebar-body::-webkit-scrollbar {
-  width: 4px;
+  width: 6px;
 }
 
 .sidebar-body::-webkit-scrollbar-track {
@@ -439,12 +444,16 @@ const handleNewChat = () => {
 }
 
 .sidebar-body::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.1);
-  border-radius: 2px;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.2) 100%);
+  border-radius: 3px;
 }
 
 .sidebar-body::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.2);
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.35) 100%);
+}
+
+.sidebar-body::-webkit-scrollbar-corner {
+  background: transparent;
 }
 
 /* 新建对话按钮 */
