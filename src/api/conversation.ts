@@ -64,5 +64,10 @@ export async function getConversationMessages(conversationId: string): Promise<C
   const response = await axiosInstance.get<{ data: ConversationMessagesResponse }>('/conversations/messages', {
     params: { conversationId },
   });
-  return response.data.data;
+  // 过滤掉 role 为 "tool" 的工具消息，不展示在页面
+  const filteredMessages = response.data.data.messages.filter(msg => msg.role !== 'tool');
+  return {
+    ...response.data.data,
+    messages: filteredMessages
+  };
 }

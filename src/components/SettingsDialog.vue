@@ -7,7 +7,7 @@
     destroy-on-close
     :append-to-body="true"
     :show-close="false"
-    :style="{ '--el-dialog-padding-primary': '0', '--el-dialog-border-radius': '20px' }"
+    class="settings-dialog"
   >
     <div class="settings-container">
       <div class="close-btn" @click="dialogVisible = false">
@@ -43,11 +43,20 @@ watch(dialogVisible, (val) => {
 </script>
 
 <style>
+.settings-dialog {
+  --el-dialog-padding-primary: 0;
+}
+
+.settings-dialog :deep(.el-dialog) {
+  border-radius: var(--el-dialog-border-radius);
+}
+
 .settings-container {
   height: 600px;
   width: 100%;
   overflow: hidden;
   position: relative;
+  border-radius: 20px;
 }
 
 .close-btn {

@@ -1,6 +1,12 @@
-# CLAUDE.md
+[根目录](../../CLAUDE.md) > [frontend-master](../) > **frontend_chat**
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+# WIMI CHAT - 前端聊天模块
+
+This file provides guidance to Claude Code when working with code in this repository.
+
+## 模块职责
+
+Frontend_chat 模块是 WIMI CHAT 的聊天界面，提供基于 Vue 3 的 AI 对话功能，包括消息列表、输入框、SSE 流式响应等。
 
 ## 常用命令
 
@@ -65,17 +71,21 @@ src/
 ## 核心模式
 
 ### 状态管理
+
 项目不使用 Pinia store，而是采用 **Hooks 模式**管理状态：
 - `useChat()` - 管理消息列表、加载状态、流式响应
 - `useConversation()` - 管理对话列表 CRUD
 
 ### SSE 流式请求
+
 `utils/streamRequest.ts` 使用 Fetch API + ReadableStream 实现 SSE，支持事件类型：`content`, `thinking`, `tool_call`, `tool_result`, `done`, `error`
 
 ### 路由
+
 项目**无 Vue Router**，采用单页面组件切换模式，通过 `currentConversationId` 控制视图切换。
 
 ### 响应式
+
 移动端断点 768px，侧边栏在移动端变为悬浮式带遮罩。
 
 ## 环境配置
@@ -91,3 +101,28 @@ src/
 - `GET/POST/DELETE/PATCH /api/conversations` - 对话管理
 - `GET /api/conversations/messages` - 获取历史消息
 - `GET /api/chat/stream` - SSE 流式聊天
+
+## 设计风格
+
+### 风格定位
+
+采用 **Manus AI 风格**，现代浅色主题，简洁的卡片式布局。
+
+### 色彩方案
+
+| 元素 | 颜色值 | 用途 |
+|------|--------|------|
+| 页面背景 | `#ffffff` | 主内容区 |
+| 侧边栏背景 | `#f8f8f7` | 侧边栏导航 |
+| 卡片背景 | `#fafafa` | 任务卡片 |
+| 主文字 | `#34322d` | 标题、正文 |
+| 次要文字 | `#858481` | 辅助说明、时间 |
+| 强调色 | `#e4e4e4` | 浅灰按钮、选中状态 |
+
+## 变更记录 (Changelog)
+
+| 时间戳 | 操作 | 说明 |
+|--------|------|------|
+| 2026-02-03 11:32:16 | 初始化 | 首次生成 AI 上下文文档 |
+| 2026-02-17 22:00:00 | 更新 | 更新为 WIMI CHAT 项目文档 |
+| 2026-02-26 00:00:00 | 更新 | 完善模块文档，统一格式 |

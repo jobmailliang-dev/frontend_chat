@@ -4,7 +4,8 @@
       "Bash(npm install:*)",
       "Bash(pnpm add:*)",
       "Bash(git add -A)",
-      "Bash(pnpm build)"
+      "Bash(pnpm build)",
+      "WebFetch(domain:element-plus.org)"
     ]
   }
 }
